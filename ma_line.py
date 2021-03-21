@@ -31,4 +31,4 @@ class MA(state_line.StateLine):
                 v = MA.get_sum(origin[index-self.avg_date:index])
                 x.append(dt)
                 y.append(v)
-        return x, y, self.color, "MA{}".format(self.avg_date)
+        return [[x, y, self.color, "MA{}".format(self.avg_date)]]

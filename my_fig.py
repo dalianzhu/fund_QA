@@ -10,8 +10,12 @@ class Fig(object):
         self.index = 0
 
     def add_sub_plot(self) -> my_plot.Plot:
+        print("total_plots_len {} {}".format(
+            self.total_plots_len,  self.index))
         size = 0
-        if self.total_plots_len <= 4:
+        if self.total_plots_len == 1:
+            size = 110
+        elif 1 < self.total_plots_len <= 4:
             size = 220
         elif 4 < self.total_plots_len <= 6:
             size = 320

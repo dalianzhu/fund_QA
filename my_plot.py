@@ -15,7 +15,7 @@ class Plot(object):
         # plt.legend()
         line.draw(self.plot)
 
-        x_major_locator = MultipleLocator(30)
+        x_major_locator = MultipleLocator(120)
         self.plot.xaxis.set_major_locator(x_major_locator)
         matplotlib.rcParams['font.family'] = 'SimSun'
         self.plot.legend()  # 显示图例

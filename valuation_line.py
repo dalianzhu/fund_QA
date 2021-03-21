@@ -18,4 +18,4 @@ class Valuation(state_line.StateLine):
             # 单位净值
             val = float(item[1])
             y.append(val)
-        return x, y, "r", "{}净值".format(self.label)
+        return [(x, y, "r", "{}净值".format(self.label))]

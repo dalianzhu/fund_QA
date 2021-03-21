@@ -56,7 +56,7 @@ def spider(code: str, start_date: str, end_date: str, write_file: bool):
 
 
 # ['净值日期', '单位净值', '累计净值', '日增长率', '申购状态', '赎回状态', '分红送配']
-start_date = "2020-03-05"
+start_date = "2016-03-05"
 
 
 def main():

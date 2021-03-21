@@ -10,5 +10,7 @@ class StateLine(object):
         pass
 
     def draw(self, plot):
-        x, y, color, label = self.op()
-        plot.plot(x, y, color=color, label=label)
+        lines = self.op()
+        for line in lines:
+            x, y, color, label = line
+            plot.plot(x, y, color=color, label=label)
