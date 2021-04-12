@@ -11,17 +11,33 @@ class AvgLine(state_line.StateLine):
         total = 0
         min_val = 999
         max_val = 0
+
+        values = []
         for item in origin:
             f_item = float(item[1])
+            values.append(f_item)
             if f_item < min_val:
                 min_val = f_item
             if f_item > max_val:
                 max_val = f_item
             total += f_item
 
+        values = list(set(values))
+        values.sort()
+        # 找出30分线和70分线
+        index30 = int(len(values) * 0.3)
+        v30 = values[index30]
+        print("index30 {} {}".format(index30, v30))
+
+        index70 = int(len(values) * 0.7)
+        v70 = values[index70]
+        print("index70 {} {} {}".format(values, index70, v70))
+
         avg = total / len(origin)
 
         m = {
+            "v30": [v30, "green", "30分线", [], []],
+            "v70": [v70, "red", "70分线", [], []],
             "avg": [avg, "blue", "平均值", [], []],
             "max": [max_val, "gold", "最大值", [], []],
             "min": [min_val, "cyan", "最小值", [], []],

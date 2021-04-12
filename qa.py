@@ -30,6 +30,8 @@ def draw_ma(fig, code):
     plot.add_line(ma_line.MA(origin, 20, "green"))
     # 在子画板上画MA60曲线
     plot.add_line(ma_line.MA(origin, 60, "gold"))
+    # 在子画板上画MA120曲线
+    plot.add_line(ma_line.MA(origin, 120, "black"))
 
 
 def draw_avg(fig, code):
@@ -49,6 +51,7 @@ def draw_avg(fig, code):
 
 
 fund_codes = {
+    "502000": "西部利得中证500指数增强A",
     "000478": "建信中证500",
     "002979": "广发中证全指金融地产联接C",
     "004598": "南方中证银行ETF联接C",
