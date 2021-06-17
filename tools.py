@@ -1,4 +1,5 @@
 import sys
+from typing import ForwardRef
 import qa
 import datetime
 import os
@@ -101,7 +102,9 @@ def run(op):
         run("refresh")
         codes = {
             "005918": "天弘沪深300",
+            "502000": "西部利得中证500指数增强A",
         }
+        send_msg = []
         for code in codes:
             title = codes[code]
             # 加载原数据
@@ -134,6 +137,29 @@ def run(op):
                 else:
                     ret["suggestion"] = "持有"
                 print(ret)
+                send_msg.append(ret)
+        send_msg_str = ""
+        for msg in send_msg:
+            send_msg_str += "名称：{} 当前：{:.4} ma20：{:.4} 建议:{}\n".format(
+                msg["title"], msg["val"], msg["ma20"], msg["suggestion"])
+        # 发送通知
+        # send_msg_feige("", send_msg_str)
+
+
+def send_msg_feige(id, text):
+    body = {
+        "msgContent": text,  # 文本消息内容
+        "chatId": [
+            id,
+        ],
+        "multiGroupMode": 0,
+        "duplicateCheckInterval": 120,
+        "duplicateCheckMode": 0
+    }
+    ret = requests.post(
+        "",
+        data=json.dumps(body))
+    print(ret)
 
 
 def main():
