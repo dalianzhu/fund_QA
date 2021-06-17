@@ -7,6 +7,8 @@ import requests
 import json
 import re
 from bs4 import BeautifulSoup
+import valuation_line
+import ma_line
 
 api = "https://fundf10.eastmoney.com/F10DataApi.aspx?type=lsjz&code={}&page={}&sdate={}&edate={}&per=100"
 
@@ -59,8 +61,7 @@ def spider(code: str, start_date: str, end_date: str, write_file: bool):
 start_date = "2016-03-05"
 
 
-def main():
-    op = sys.argv[1]
+def run(op):
     if op == "refresh":
         for code in qa.fund_codes:
             file_path = "./db_{}.json".format(code)
@@ -96,6 +97,48 @@ def main():
             js_str = json.dumps(all_records, ensure_ascii=False)
             with open("./db_{}.json".format(code), "wb+") as f:
                 f.write(js_str.encode())
+    if op == "today":
+        run("refresh")
+        codes = {
+            "005918": "天弘沪深300",
+        }
+        for code in codes:
+            title = codes[code]
+            # 加载原数据
+            with open("./db_{}.json".format(code), "rb")as f:
+                text = f.read()
+                origin = json.loads(text)
+                val = valuation_line.Valuation(origin, title)
+                ret = val.op()
+                valx = ret[0][0]
+                valy = ret[0][1]
+
+                ma20 = ma_line.MA(origin, 20, "green")
+                ret = ma20.op()
+                ma20x = ret[0][0]
+                ma20y = ret[0][1]
+                if valx[-1] != ma20x[-1]:
+                    raise Exception("日期对不上")
+                date = valx[-1]
+                val_today = float(valy[-1])
+                ma20_today = float(ma20y[-1])
+                ret = {
+                    "title": title,
+                    "date": date,
+                    "val": val_today,
+                    "ma20": ma20_today,
+                    "suggestion": ""
+                }
+                if val_today < ma20_today:
+                    ret["suggestion"] = "卖出"
+                else:
+                    ret["suggestion"] = "持有"
+                print(ret)
+
+
+def main():
+    op = sys.argv[1]
+    run(op)
 
 
 if __name__ == "__main__":
