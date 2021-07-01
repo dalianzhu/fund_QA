@@ -43,6 +43,6 @@ codes = {
 # run_check_fix("005918")
 # run_check_fix("502000")
 
-run_check_ma20("005918")
-# run_check_ma20("502000")
+# run_check_ma20("005918")
+run_check_ma20("502000")
 # run_check_ma20("002979")

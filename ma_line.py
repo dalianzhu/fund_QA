@@ -49,9 +49,11 @@ class MA(state_line.StateLine):
             self.ma20_ddx.append(date)
             self.ma20_ddy.append((item - last))
             last = item
+        self.x = x
+        self.y = y
 
         return [
             [x, y, self.color, "MA{}".format(self.avg_date)],
             [self.ma20_dx, self.ma20_dy, self.color, "dMA{}".format(self.avg_date)],
-            [self.ma20_ddx, self.ma20_ddy, self.color, "ddMA{}".format(self.avg_date)]
+            # [self.ma20_ddx, self.ma20_ddy, self.color, "ddMA{}".format(self.avg_date)]
         ]

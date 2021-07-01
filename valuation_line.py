@@ -12,7 +12,6 @@ class Valuation(state_line.StateLine):
         x = []
         y = []
         y0 = []
-        y1 = []
         for item in origin:
             # 日期
             dt = item[0]
@@ -20,10 +19,8 @@ class Valuation(state_line.StateLine):
             # 单位净值
             val = float(item[1])
             y.append(val)
-            y0.append(0.5)
-            y1.append(0.25)
+            y0.append(0)
         return [
             (x, y, "r", "{}净值".format(self.label)),
             (x, y0, "r", "0"),
-            (x, y1, "r", "0"),
         ]

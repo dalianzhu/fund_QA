@@ -46,17 +46,22 @@ class StrategyMa20DU(object):
 
         ma20 = ma_line.MA(self.origin, 20, "green")
         ma20.op()
+        self.ma20_x = ma20.x
+        self.ma20_y = ma20.y
+
         self.ma20_dx = ma20.ma20_dx
         self.ma20_dy = ma20.ma20_dy
-        print("ma20_dy:{}".format(self.ma20_dy))
         self.ma20_ddx = ma20.ma20_ddx
         self.ma20_ddy = ma20.ma20_ddy
 
         self.date_map_ma20 = {v: k for (k, v) in enumerate(self.ma20_dx)}
-        pr = {}
+        ma20dymap = {}
+        ma20map = {}
         for i, item in enumerate(self.ma20_dx):
-            pr[item] = self.ma20_dy[i]
-        # print(pr)
+            ma20dymap[item] = self.ma20_dy[i]
+            ma20map[item] = self.ma20_y[i]
+        print(ma20map)
+        print(ma20dymap)
         self.before_sale = before_sale
         self.before_buy = before_buy
 
@@ -92,11 +97,14 @@ class StrategyMa20DU(object):
         date_ma20_index = self.date_map_ma20[date]
         date_val_index = self.date_map_val[date]
         val_target_day = self.valy[date_val_index]
-        ma20_du_target_day = float(self.ma20_dy[date_ma20_index])
+        dma20_target_day = float(self.ma20_dy[date_ma20_index])
+        ma20_target_day = float(self.ma20_y[date_ma20_index])
 
-        if self.check(self.ma20_dy, date_ma20_index, 5, +1):
+        if self.check(self.ma20_dy, date_ma20_index, 3, -1):
+            return "sale", 1
+        if self.check(self.ma20_dy, date_ma20_index, 10, +1) and \
+                self.check_strict(self.ma20_ddy, date_ma20_index, 3, +1):
             self.last_buy_date = date_ma20_index
             return "buy", 1
-        if self.check(self.ma20_dy, date_ma20_index, 5, -1):
-            return "sale", 1
+
         return "skip", 0

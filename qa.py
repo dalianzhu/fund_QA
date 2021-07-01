@@ -77,4 +77,5 @@ if __name__ == "__main__":
             draw_ma(fig, code)
         elif qi_type == "avg":
             draw_avg(fig, code)
+    plt.xticks(rotation=270)
     plt.show()
