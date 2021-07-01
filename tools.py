@@ -1,15 +1,22 @@
-import sys
-from typing import ForwardRef
-import qa
 import datetime
-import os
-import time
-import requests
+import base64
+
+import io
+from PIL import Image
+import matplotlib.pyplot as plt
+
 import json
+import os
 import re
+import sys
+import time
+
+import my_fig
+import requests
 from bs4 import BeautifulSoup
-import valuation_line
-import ma_line
+
+import qa
+import strategy.strategy_ma20 as strategy_ma20
 
 api = "https://fundf10.eastmoney.com/F10DataApi.aspx?type=lsjz&code={}&page={}&sdate={}&edate={}&per=100"
 
@@ -44,9 +51,9 @@ def spider(code: str, start_date: str, end_date: str, write_file: bool):
     page_records = []
     for item in records:
         page_records.append(item)
-    print("head:{}\npages:{}".format(head, pages))
+    print("head:{} code:{}\npages:{}".format(head, code, pages))
 
-    for i in range(2, pages+1):
+    for i in range(2, pages + 1):
         _, _, records = get_page(code, start_date, end_date, i)
         for item in records:
             page_records.append(item)
@@ -66,11 +73,10 @@ def run(op):
     if op == "refresh":
         for code in qa.fund_codes:
             file_path = "./db_{}.json".format(code)
-
             end_time = datetime.datetime.now()
             end_time = end_time.strftime("%Y-%m-%d")
 
-            if os.path.exists(file_path) == False:
+            if not os.path.exists(file_path):
                 spider(code, start_date, end_time, True)
                 continue
 
@@ -100,6 +106,7 @@ def run(op):
                 f.write(js_str.encode())
     if op == "today":
         run("refresh")
+        print("refresh over")
         codes = {
             "005918": "天弘沪深300",
             "502000": "西部利得中证500指数增强A",
@@ -111,39 +118,61 @@ def run(op):
             with open("./db_{}.json".format(code), "rb")as f:
                 text = f.read()
                 origin = json.loads(text)
-                val = valuation_line.Valuation(origin, title)
-                ret = val.op()
-                valx = ret[0][0]
-                valy = ret[0][1]
+                date = origin[0][0]
+                strategy = strategy_ma20.StrategyMa20DU(origin, 5, 10)
+                op, percent = strategy.run(date)
+                val_today = strategy.valy[strategy.date_map_val[date]]
 
-                ma20 = ma_line.MA(origin, 20, "green")
-                ret = ma20.op()
-                ma20x = ret[0][0]
-                ma20y = ret[0][1]
-                if valx[-1] != ma20x[-1]:
-                    raise Exception("日期对不上")
-                date = valx[-1]
-                val_today = float(valy[-1])
-                ma20_today = float(ma20y[-1])
-                ret = {
-                    "title": title,
-                    "date": date,
-                    "val": val_today,
-                    "ma20": ma20_today,
-                    "suggestion": ""
-                }
-                if val_today < ma20_today:
-                    ret["suggestion"] = "卖出"
-                else:
-                    ret["suggestion"] = "持有"
+                if op == "sale":
+                    ret = {
+                        "title": title,
+                        "date": date,
+                        "val": val_today,
+                        "suggestion": "卖出"
+                    }
+                elif op == "skip":
+                    ret = {
+                        "title": title,
+                        "date": date,
+                        "val": val_today,
+                        "suggestion": "持有"
+                    }
+                elif op == "buy":
+                    ret = {
+                        "title": title,
+                        "date": date,
+                        "val": val_today,
+                        "suggestion": "买入"
+                    }
+
                 print(ret)
                 send_msg.append(ret)
         send_msg_str = ""
         for msg in send_msg:
-            send_msg_str += "名称：{} 当前：{:.4} ma20：{:.4} 建议:{}\n".format(
-                msg["title"], msg["val"], msg["ma20"], msg["suggestion"])
+            send_msg_str += "名称：{} 当前：{:.4} 建议:{}\n".format(
+                msg["title"], msg["val"], msg["suggestion"])
         # 发送通知
-        # send_msg_feige("", send_msg_str)
+        send_msg_feige("wrkSFfCgAA2Qb_GUEsuODFIcar79EFjw", send_msg_str)
+        # 发送图片
+        fig = my_fig.Fig(len(codes))
+        fig.fig.set_size_inches(18.5, 10.5)
+        for code in codes:
+            qa.draw_ma(fig, code)
+        # plt.show()
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        # im = Image.open(buf)
+        # im.show()
+        content = buf.read()
+        buf.close()
+        print(len(content))
+
+        # print(content)
+        b64origin = base64.b64encode(content)
+        ret_str = b64origin.decode()
+        # print(ret_str)
+        send_msg_feige_pic("wrkSFfCgAA2Qb_GUEsuODFIcar79EFjw", ret_str)
 
 
 def send_msg_feige(id, text):
@@ -157,12 +186,27 @@ def send_msg_feige(id, text):
         "duplicateCheckMode": 0
     }
     ret = requests.post(
-        "",
+        'http://nops.tencent-cloud.com/pigeon/v1/wechat_work/bot/text',
         data=json.dumps(body))
     print(ret)
 
 
+def send_msg_feige_pic(id, pic_bytes):
+    url = "http://nops.tencent-cloud.com/pigeon/v1/wechat_work/bot/image"
+    body = {
+        "msgContent": pic_bytes,
+        "chatId": [id],
+        # "botKey":         f.BotKey,
+        "multiGroupMode": 0,
+    }
+    ret = requests.post(
+        url,
+        data=json.dumps(body))
+    print(ret.text)
+
+
 def main():
+    print(os.getcwd())
     op = sys.argv[1]
     run(op)
 

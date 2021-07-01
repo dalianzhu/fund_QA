@@ -11,6 +11,8 @@ class Valuation(state_line.StateLine):
         origin = sorted(self.origin, key=lambda x: x[0], reverse=False)
         x = []
         y = []
+        y0 = []
+        y1 = []
         for item in origin:
             # 日期
             dt = item[0]
@@ -18,4 +20,10 @@ class Valuation(state_line.StateLine):
             # 单位净值
             val = float(item[1])
             y.append(val)
-        return [(x, y, "r", "{}净值".format(self.label))]
+            y0.append(0.5)
+            y1.append(0.25)
+        return [
+            (x, y, "r", "{}净值".format(self.label)),
+            (x, y0, "r", "0"),
+            (x, y1, "r", "0"),
+        ]
