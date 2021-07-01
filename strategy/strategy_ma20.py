@@ -84,7 +84,7 @@ class StrategyMa20DU(object):
                 un_match += 1
             else:
                 match += 1
-        return match > un_match
+        return match / (match + un_match) > 0.7
 
     def run(self, date: str) -> (str, float):  # sale/buy, 1,0
         if date not in self.date_map_ma20:
@@ -94,9 +94,9 @@ class StrategyMa20DU(object):
         val_target_day = self.valy[date_val_index]
         ma20_du_target_day = float(self.ma20_dy[date_ma20_index])
 
-        if self.check(self.ma20_ddy, date_ma20_index, 5, -1):
-            return "sale", 1
-        if val_target_day > ma20_du_target_day and self.check(self.ma20_dy, date_ma20_index, 5, +1):
+        if self.check(self.ma20_dy, date_ma20_index, 5, +1):
             self.last_buy_date = date_ma20_index
             return "buy", 1
+        if self.check(self.ma20_dy, date_ma20_index, 5, -1):
+            return "sale", 1
         return "skip", 0
