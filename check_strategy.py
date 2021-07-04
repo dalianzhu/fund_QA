@@ -34,15 +34,16 @@ def run_check_fix(code):
         tp = check_fixed.check_ma20_fixed(origin)
         print(tp)
 
+
 codes = {
     "005918": "天弘沪深300",
     "502000": "西部利得中证500指数增强A",
-    "002979": "广发中证全指金融地产联接C",
 }
 
 # run_check_fix("005918")
 # run_check_fix("502000")
 
 # run_check_ma20("005918")
-run_check_ma20("502000")
-# run_check_ma20("002979")
+# run_check_ma20("502000")
+run_check_ma20("006341")
+# run_check_ma20("003567")

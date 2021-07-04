@@ -13,8 +13,10 @@ class StrategyMa20(object):
         ret = ma20.op()[0]
         self.ma20x = ret[0]
         self.ma20y = ret[1]
-        self.date_map_val = {date: index for (index, date) in enumerate(self.valx)}
-        self.date_map_ma20 = {date: index for (index, date) in enumerate(self.ma20x)}
+        self.date_map_val = {date: index for (
+            index, date) in enumerate(self.valx)}
+        self.date_map_ma20 = {date: index for (
+            index, date) in enumerate(self.ma20x)}
 
     def run(self, date: str) -> (str, float):  # sale/buy, 1,0
         if date not in self.date_map_val:
@@ -42,7 +44,8 @@ class StrategyMa20DU(object):
         ret = val.op()[0]
         self.valx = ret[0]  # 日期
         self.valy = ret[1]  # 值
-        self.date_map_val = {date: index for (index, date) in enumerate(self.valx)}
+        self.date_map_val = {date: index for (
+            index, date) in enumerate(self.valx)}
 
         ma20 = ma_line.MA(self.origin, 20, "green")
         ma20.op()
@@ -100,7 +103,7 @@ class StrategyMa20DU(object):
         dma20_target_day = float(self.ma20_dy[date_ma20_index])
         ma20_target_day = float(self.ma20_y[date_ma20_index])
 
-        if self.check(self.ma20_dy, date_ma20_index, 3, -1):
+        if self.check_strict(self.ma20_dy, date_ma20_index, 3, -1):
             return "sale", 1
         if self.check(self.ma20_dy, date_ma20_index, 10, +1) and \
                 self.check_strict(self.ma20_ddy, date_ma20_index, 3, +1):
