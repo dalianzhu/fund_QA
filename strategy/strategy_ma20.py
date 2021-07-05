@@ -103,7 +103,7 @@ class StrategyMa20DU(object):
         dma20_target_day = float(self.ma20_dy[date_ma20_index])
         ma20_target_day = float(self.ma20_y[date_ma20_index])
 
-        if self.check(self.ma20_dy, date_ma20_index, 3, -1):
+        if self.check_strict(self.ma20_dy, date_ma20_index, 3, -1):
             return "sale", 1
         if self.check(self.ma20_dy, date_ma20_index, 10, +1) and \
                 self.check_strict(self.ma20_ddy, date_ma20_index, 3, +1):
