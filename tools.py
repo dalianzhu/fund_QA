@@ -135,7 +135,7 @@ def run(op):
                         "title": title,
                         "date": date,
                         "val": val_today,
-                        "suggestion": "持有"
+                        "suggestion": "无操作"
                     }
                 elif op == "buy":
                     ret = {
@@ -151,14 +151,15 @@ def run(op):
         for msg in send_msg:
             send_msg_str += "名称：{} 当前：{:.4} 建议:{}\n".format(
                 msg["title"], msg["val"], msg["suggestion"])
-        # 发送通知
-        send_msg_feige("wrkSFfCgAA2Qb_GUEsuODFIcar79EFjw", send_msg_str)
-        # 发送图片
+
         fig = my_fig.Fig(len(codes))
         fig.fig.set_size_inches(18.5, 10.5)
+
         for code in codes:
             qa.draw_ma(fig, code)
-        # plt.show()
+            plt.xticks(rotation=270)
+            plt.grid(True)
+
         buf = io.BytesIO()
         plt.savefig(buf, format='png')
         buf.seek(0)
@@ -168,6 +169,8 @@ def run(op):
         buf.close()
         print(len(content))
 
+        # 发送通知
+        send_msg_feige("wrkSFfCgAA2Qb_GUEsuODFIcar79EFjw", send_msg_str)
         # print(content)
         b64origin = base64.b64encode(content)
         ret_str = b64origin.decode()
