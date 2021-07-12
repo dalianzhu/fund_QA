@@ -1,7 +1,7 @@
-import state_line
+import state_line_abs
 
 
-class AvgLine(state_line.StateLine):
+class AvgLine(state_line_abs.StateLine):
     # AvgLine 历史平均线
     def __init__(self, origin: list) -> None:
         self.set_origin(origin)

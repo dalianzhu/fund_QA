@@ -1,3 +1,4 @@
+import matplotlib
 import datetime
 import base64
 
@@ -68,6 +69,8 @@ def spider(code: str, start_date: str, end_date: str, write_file: bool):
 # ['净值日期', '单位净值', '累计净值', '日增长率', '申购状态', '赎回状态', '分红送配']
 start_date = "2016-03-05"
 
+matplotlib.rcParams['font.family'] = 'SimSun'
+
 
 def run(op):
     if op == "refresh":
@@ -110,6 +113,8 @@ def run(op):
         codes = {
             "005918": "天弘沪深300",
             "502000": "西部利得中证500指数增强A",
+            "006341": "中金msci",
+            "003567": "华夏行业景气混合",
         }
         send_msg = []
         for code in codes:
@@ -123,59 +128,96 @@ def run(op):
                 op, percent = strategy.run(date)
                 val_today = strategy.valy[strategy.date_map_val[date]]
 
+                # 下面判定升降趋势
+                date_ma20_index = strategy.date_map_ma20[date]
+                dy = strategy.check(strategy.ma20_dy, date_ma20_index, 10, 1)  # 正导，上涨
+                # 二阶导大于0为凸函数，斜率不断上升，如果在上升则涨幅变急，下降则降幅变缓
+                ddy = strategy.check(strategy.ma20_ddy, date_ma20_index, 3, 1)
+
+                dy_down = strategy.check(strategy.ma20_dy, date_ma20_index, 10, -1)
+                # 二阶导小于0为凹函数，斜率不断下降，如果在上升则涨幅变缓，下降则降幅变急
+                ddy_down = strategy.check(strategy.ma20_ddy, date_ma20_index, 3, -1)  # 二阶导小于0为凸函数，斜率不断上升
+
+                print("dy data:{} dy:{} dy_down:{}".format(strategy.ma20_dy[date_ma20_index - 9:], dy, dy_down))
+                print("ddy data:{} ddy:{} ddy_down:{}".format(strategy.ma20_ddy[date_ma20_index - 4:], ddy, ddy_down))
+
+                trend = ""
+                if dy:
+                    if ddy:
+                        trend = "急增"
+                    elif ddy_down:
+                        trend = "缓增"
+                    else:
+                        trend = "上升"
+
+                elif dy_down:
+                    if ddy:
+                        trend = "缓降"
+                    elif ddy_down:
+                        trend = "急降"
+                    else:
+                        trend = "下降"
+                else:
+                    trend = "无"
+
                 if op == "sale":
                     ret = {
                         "title": title,
                         "date": date,
                         "val": val_today,
-                        "suggestion": "卖出"
+                        "suggestion": "卖出",
+                        "trend": trend
                     }
                 elif op == "skip":
                     ret = {
                         "title": title,
                         "date": date,
                         "val": val_today,
-                        "suggestion": "无操作"
+                        "suggestion": "无操作",
+                        "trend": trend
                     }
                 elif op == "buy":
                     ret = {
                         "title": title,
                         "date": date,
                         "val": val_today,
-                        "suggestion": "买入"
+                        "suggestion": "买入",
+                        "trend": trend
                     }
 
-                print(ret)
+                # print(ret)
                 send_msg.append(ret)
         send_msg_str = ""
         for msg in send_msg:
-            send_msg_str += "名称：{} 当前：{:.4} 建议:{}\n".format(
-                msg["title"], msg["val"], msg["suggestion"])
-
-        fig = my_fig.Fig(len(codes))
-        fig.fig.set_size_inches(18.5, 10.5)
+            send_msg_str += "名称：{} 当前：{:.4}，趋势:{} 建议:{}\n".format(
+                msg["title"], msg["val"], msg["trend"], msg["suggestion"])
+        print("将发送文本:{}".format(send_msg_str))
+        # return
 
         for code in codes:
+            fig = my_fig.Fig(1)
+            fig.fig.set_size_inches(13.5, 6.5)
             qa.draw_ma(fig, code)
-            plt.xticks(rotation=270)
+            plt.xticks(rotation=315)
             plt.grid(True)
 
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
-        # im = Image.open(buf)
-        # im.show()
-        content = buf.read()
-        buf.close()
-        print(len(content))
-
+            buf = io.BytesIO()
+            fig.fig.savefig(buf, format='png')
+            fig.fig.canvas.draw_idle()  # need this if 'transparent=True' to reset colors
+            buf.seek(0)
+            # im = Image.open(buf)
+            # im.show()
+            content = buf.read()
+            buf.close()
+            # continue
+            # print(content)
+            b64origin = base64.b64encode(content)
+            ret_str = b64origin.decode()
+            # print("ret str", ret_str)
+            send_msg_feige_pic("wrkSFfCgAA2Qb_GUEsuODFIcar79EFjw", ret_str)
+        # return
         # 发送通知
         send_msg_feige("wrkSFfCgAA2Qb_GUEsuODFIcar79EFjw", send_msg_str)
-        # print(content)
-        b64origin = base64.b64encode(content)
-        ret_str = b64origin.decode()
-        # print(ret_str)
-        send_msg_feige_pic("wrkSFfCgAA2Qb_GUEsuODFIcar79EFjw", ret_str)
 
 
 def send_msg_feige(id, text):
@@ -191,7 +233,7 @@ def send_msg_feige(id, text):
     ret = requests.post(
         'http://nops.tencent-cloud.com/pigeon/v1/wechat_work/bot/text',
         data=json.dumps(body))
-    print(ret)
+    # print(ret)
 
 
 def send_msg_feige_pic(id, pic_bytes):
@@ -205,7 +247,7 @@ def send_msg_feige_pic(id, pic_bytes):
     ret = requests.post(
         url,
         data=json.dumps(body))
-    print(ret.text)
+    # print(ret.text)
 
 
 def main():

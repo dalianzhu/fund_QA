@@ -3,7 +3,7 @@ import sys
 import my_fig
 import matplotlib.pyplot as plt
 import matplotlib
-import state_line
+import state_line_abs
 import avg_line
 import valuation_line
 import ma_line
@@ -58,8 +58,10 @@ fund_codes = {
     "003567": "华夏行业景气混合",
 }
 
+
 if __name__ == "__main__":
-    qi_type = "ma"
+    matplotlib.rcParams['font.sans-serif'] = 'SimHei'
+
     target = ""
     real_fund_codes = fund_codes
     if len(sys.argv) > 1:
@@ -74,11 +76,15 @@ if __name__ == "__main__":
         raise Exception("没有找到 {}".format(target))
     # 创建一个figure
     fig = my_fig.Fig(len(real_fund_codes))
+
+    # matplotlib.rcParams['font.sans-serif'] = ['Hei']
+    # matplotlib.rcParams['axes.unicode_minus'] = False
+
     for code in real_fund_codes:
         if qi_type == "ma":
             draw_ma(fig, code)
         elif qi_type == "avg":
             draw_avg(fig, code)
-    plt.xticks(rotation=270)
-    plt.grid(True)
+        plt.xticks(rotation=315)
+        plt.grid(True)
     plt.show()

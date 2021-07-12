@@ -63,8 +63,8 @@ class StrategyMa20DU(object):
         for i, item in enumerate(self.ma20_dx):
             ma20dymap[item] = self.ma20_dy[i]
             ma20map[item] = self.ma20_y[i]
-        print(ma20map)
-        print(ma20dymap)
+        # print(ma20map)
+        # print(ma20dymap)
         self.before_sale = before_sale
         self.before_buy = before_buy
 
@@ -85,7 +85,7 @@ class StrategyMa20DU(object):
             return False
         match = 0
         un_match = 0
-        for i in range(before, index):
+        for i in range(before, index + 1):
             # print(i)
             # if self.ma20_dy[i] * check_type < 0:
             if slice[i] * check_type < 0:
@@ -103,10 +103,11 @@ class StrategyMa20DU(object):
         dma20_target_day = float(self.ma20_dy[date_ma20_index])
         ma20_target_day = float(self.ma20_y[date_ma20_index])
 
-        if self.check_strict(self.ma20_dy, date_ma20_index, 3, -1):
+        if self.check_strict(self.ma20_dy, date_ma20_index, 3, -1) and \
+                self.check(self.ma20_ddy, date_ma20_index, 3, -1):  # 当连续4天下跌，且跌幅增加，则卖出
             return "sale", 1
         if self.check(self.ma20_dy, date_ma20_index, 10, +1) and \
-                self.check_strict(self.ma20_ddy, date_ma20_index, 3, +1):
+                self.check(self.ma20_ddy, date_ma20_index, 4, +1):  # 当连续10天上涨，且连续4天涨幅增加，则买入
             self.last_buy_date = date_ma20_index
             return "buy", 1
         return "skip", 0

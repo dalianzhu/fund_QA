@@ -1,7 +1,7 @@
-import state_line
+import state_line_abs
 
 
-class Valuation(state_line.StateLine):
+class Valuation(state_line_abs.StateLine):
     # Valuation 每日净值曲线
     def __init__(self, origin: list, label: str) -> None:
         self.label = label

@@ -1,7 +1,7 @@
-import state_line
+import state_line_abs
 
 
-class MA(state_line.StateLine):
+class MA(state_line_abs.StateLine):
     # 均值曲线
     def __init__(self, origin: list, avg_date: int, color: str) -> None:
         self.avg_date = avg_date
@@ -54,6 +54,7 @@ class MA(state_line.StateLine):
 
         return [
             [x, y, self.color, "MA{}".format(self.avg_date)],
-            [self.ma20_dx, self.ma20_dy, self.color, "dMA{}".format(self.avg_date)],
+            [self.ma20_dx, self.ma20_dy, self.color,
+                "dMA{}".format(self.avg_date)],
             # [self.ma20_ddx, self.ma20_ddy, self.color, "ddMA{}".format(self.avg_date)]
         ]
