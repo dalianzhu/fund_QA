@@ -56,14 +56,16 @@ fund_codes = {
     "005918": "天弘沪深300",
     "006341": "中金msci",
     "003567": "华夏行业景气混合",
+    "000968": "广发养老指数A",
 }
 
 
 if __name__ == "__main__":
-    matplotlib.rcParams['font.sans-serif'] = 'SimHei'
+    matplotlib.rcParams['font.family'] = 'Arial Unicode MS'
 
     target = ""
     real_fund_codes = fund_codes
+    qi_type = "ma"
     if len(sys.argv) > 1:
         qi_type = sys.argv[1]
 
@@ -76,9 +78,6 @@ if __name__ == "__main__":
         raise Exception("没有找到 {}".format(target))
     # 创建一个figure
     fig = my_fig.Fig(len(real_fund_codes))
-
-    # matplotlib.rcParams['font.sans-serif'] = ['Hei']
-    # matplotlib.rcParams['axes.unicode_minus'] = False
 
     for code in real_fund_codes:
         if qi_type == "ma":
